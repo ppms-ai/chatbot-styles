@@ -40,7 +40,7 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Add the avatar
+// Add avatar image
 const avatar = document.createElement('img');
 avatar.id = 'ambassador-avatar';
 avatar.src = 'https://storage.googleapis.com/msgsndr/hT6XhVZ1tpQztNIrhXD4/media/67fd90ac0fa4ee04ace65053.png';
@@ -55,23 +55,11 @@ Object.assign(avatar.style, {
 });
 document.body.appendChild(avatar);
 
-// Detect the chat toggle button and toggle avatar manually
-const checkForButton = setInterval(() => {
-  const btn = document.querySelector('[id^="chat_plugin_ghl"] button');
+// Repeating visibility checker loop
+const visibilityLoop = setInterval(() => {
   const chatWindow = document.querySelector('.sc-chat-window');
-
-  if (btn && chatWindow) {
-    clearInterval(checkForButton);
-
-    let chatOpen = false;
-
-    btn.addEventListener('click', () => {
-      // Small delay to let animation happen
-      setTimeout(() => {
-        const isVisible = window.getComputedStyle(chatWindow).display !== 'none';
-        chatOpen = isVisible;
-        avatar.style.display = chatOpen ? 'block' : 'none';
-      }, 100);
-    });
+  if (chatWindow) {
+    const isVisible = window.getComputedStyle(chatWindow).display !== 'none';
+    avatar.style.display = isVisible ? 'block' : 'none';
   }
 }, 500);
