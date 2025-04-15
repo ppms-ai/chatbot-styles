@@ -1,4 +1,4 @@
-// Inject custom styles (same as before)
+// Inject custom styles
 const style = document.createElement('style');
 style.textContent = `
   .sc-chat-window {
@@ -40,7 +40,7 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Add avatar but keep it hidden
+// Add avatar
 const avatar = document.createElement('img');
 avatar.id = 'ambassador-avatar';
 avatar.src = 'https://storage.googleapis.com/msgsndr/hT6XhVZ1tpQztNIrhXD4/media/67fd90ac0fa4ee04ace65053.png';
@@ -55,30 +55,22 @@ Object.assign(avatar.style, {
 });
 document.body.appendChild(avatar);
 
-// Function to toggle avatar based on chat window visibility
-function monitorChatVisibility() {
-  const chat = document.querySelector('.sc-chat-window');
-
-  if (!chat) return;
-
-  // Use MutationObserver to detect changes in style (i.e., when chat opens)
-  const observer = new MutationObserver(() => {
-    const isVisible = window.getComputedStyle(chat).display !== 'none';
-    avatar.style.display = isVisible ? 'block' : 'none';
-  });
-
-  observer.observe(chat, { attributes: true, attributeFilter: ['style'] });
-
-  // Initial state check
-  const isVisible = window.getComputedStyle(chat).display !== 'none';
-  avatar.style.display = isVisible ? 'block' : 'none';
-}
-
-// Wait for the chat window to actually exist in the DOM first
-const checkExist = setInterval(() => {
+// Watch for style changes (i.e., when chat is opened/closed)
+const waitForChat = setInterval(() => {
   const chatWindow = document.querySelector('.sc-chat-window');
   if (chatWindow) {
-    clearInterval(checkExist);
-    monitorChatVisibility();
+    clearInterval(waitForChat);
+
+    const observer = new MutationObserver(() => {
+      const isVisible = window.getComputedStyle(chatWindow).display !== 'none';
+      avatar.style.display = isVisible ? 'block' : 'none';
+    });
+
+    // Watch style changes only
+    observer.observe(chatWindow, { attributes: true, attributeFilter: ['style'] });
+
+    // Do initial check too
+    const initialVisible = window.getComputedStyle(chatWindow).display !== 'none';
+    avatar.style.display = initialVisible ? 'block' : 'none';
   }
 }, 500);
