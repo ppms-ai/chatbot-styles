@@ -1,5 +1,5 @@
 (function() {
-  // Create style element for chat styling
+  // Create style element
   const style = document.createElement('style');
   
   // Add the CSS with client-specific colors
@@ -64,8 +64,16 @@
   // Add the style to the page
   document.head.appendChild(style);
   
-  // Add avatar image
-  function addAvatar() {
+  // Wait for DOM to be fully loaded
+  function initAvatar() {
+    console.log("Initializing wedding avatar...");
+    
+    // Remove any existing avatar
+    const existingAvatar = document.getElementById('wedding-ambassador-avatar');
+    if (existingAvatar) {
+      existingAvatar.remove();
+    }
+    
     // Create avatar element
     const avatar = document.createElement('img');
     avatar.src = 'https://storage.googleapis.com/msgsndr/hT6XhVZ1tpQztNIrhXD4/media/67fd90ac0fa4ee04ace65053.png';
@@ -84,7 +92,11 @@
     
     // Function to check if chat is open
     function checkChatOpen() {
-      const chatWindow = document.querySelector('.sc-chat-window');
+      // Try multiple selector options
+      const chatWindow = document.querySelector('.sc-chat-window') || 
+                         document.querySelector('.promptherai-widget') ||
+                         document.querySelector('[class*="chat-window"]');
+                         
       const avatarElement = document.getElementById('wedding-ambassador-avatar');
       
       if (!avatarElement) return;
@@ -92,8 +104,10 @@
       if (chatWindow && 
           getComputedStyle(chatWindow).display !== 'none' && 
           !chatWindow.classList.contains('closed')) {
+        console.log("Chat window open, showing avatar");
         avatarElement.style.display = 'block';
       } else {
+        console.log("Chat window closed or not found, hiding avatar");
         avatarElement.style.display = 'none';
       }
     }
@@ -105,8 +119,18 @@
     document.addEventListener('click', function() {
       setTimeout(checkChatOpen, 500);
     });
+    
+    // Initial check
+    checkChatOpen();
   }
   
-  // Add avatar after a short delay to ensure chat is loaded
-  setTimeout(addAvatar, 1000);
+  // Start initialization
+  if (document.readyState === 'complete') {
+    initAvatar();
+  } else {
+    window.addEventListener('load', initAvatar);
+  }
+  
+  // Also try with a delay as a fallback
+  setTimeout(initAvatar, 2000);
 })();
