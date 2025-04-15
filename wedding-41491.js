@@ -1,5 +1,5 @@
 (function() {
-  // Create style element
+  // Create style element for chat styling
   const style = document.createElement('style');
   
   // Add the CSS with client-specific colors
@@ -63,4 +63,50 @@
   
   // Add the style to the page
   document.head.appendChild(style);
+  
+  // Add avatar image
+  function addAvatar() {
+    // Create avatar element
+    const avatar = document.createElement('img');
+    avatar.src = 'https://storage.googleapis.com/msgsndr/hT6XhVZ1tpQztNIrhXD4/media/67fd90ac0fa4ee04ace65053.png';
+    avatar.id = 'wedding-ambassador-avatar';
+    avatar.alt = 'Wedding Expert Avatar';
+    avatar.style.position = 'fixed';
+    avatar.style.bottom = '120px';
+    avatar.style.right = '420px';
+    avatar.style.width = '200px';
+    avatar.style.zIndex = '998';
+    avatar.style.pointerEvents = 'none';
+    avatar.style.display = 'none';
+    
+    // Add to body
+    document.body.appendChild(avatar);
+    
+    // Function to check if chat is open
+    function checkChatOpen() {
+      const chatWindow = document.querySelector('.sc-chat-window');
+      const avatarElement = document.getElementById('wedding-ambassador-avatar');
+      
+      if (!avatarElement) return;
+      
+      if (chatWindow && 
+          getComputedStyle(chatWindow).display !== 'none' && 
+          !chatWindow.classList.contains('closed')) {
+        avatarElement.style.display = 'block';
+      } else {
+        avatarElement.style.display = 'none';
+      }
+    }
+    
+    // Check periodically
+    setInterval(checkChatOpen, 1000);
+    
+    // Also check on clicks
+    document.addEventListener('click', function() {
+      setTimeout(checkChatOpen, 500);
+    });
+  }
+  
+  // Add avatar after a short delay to ensure chat is loaded
+  setTimeout(addAvatar, 1000);
 })();
