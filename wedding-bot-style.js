@@ -1,4 +1,4 @@
-// Inject CSS styles
+// Inject custom styles (same as before)
 const style = document.createElement('style');
 style.textContent = `
   .sc-chat-window {
@@ -40,11 +40,10 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Setup avatar
+// Add avatar but keep it hidden
 const avatar = document.createElement('img');
 avatar.id = 'ambassador-avatar';
 avatar.src = 'https://storage.googleapis.com/msgsndr/hT6XhVZ1tpQztNIrhXD4/media/67fd90ac0fa4ee04ace65053.png';
-avatar.alt = 'Brand Ambassador';
 Object.assign(avatar.style, {
   position: 'fixed',
   bottom: '120px',
@@ -52,17 +51,34 @@ Object.assign(avatar.style, {
   width: '200px',
   zIndex: '998',
   pointerEvents: 'none',
-  display: 'none',
+  display: 'none'
 });
 document.body.appendChild(avatar);
 
-// Monitor DOM for chat open/close state
-const observer = new MutationObserver(() => {
+// Function to toggle avatar based on chat window visibility
+function monitorChatVisibility() {
+  const chat = document.querySelector('.sc-chat-window');
+
+  if (!chat) return;
+
+  // Use MutationObserver to detect changes in style (i.e., when chat opens)
+  const observer = new MutationObserver(() => {
+    const isVisible = window.getComputedStyle(chat).display !== 'none';
+    avatar.style.display = isVisible ? 'block' : 'none';
+  });
+
+  observer.observe(chat, { attributes: true, attributeFilter: ['style'] });
+
+  // Initial state check
+  const isVisible = window.getComputedStyle(chat).display !== 'none';
+  avatar.style.display = isVisible ? 'block' : 'none';
+}
+
+// Wait for the chat window to actually exist in the DOM first
+const checkExist = setInterval(() => {
   const chatWindow = document.querySelector('.sc-chat-window');
   if (chatWindow) {
-    const isOpen = window.getComputedStyle(chatWindow).display !== 'none';
-    avatar.style.display = isOpen ? 'block' : 'none';
+    clearInterval(checkExist);
+    monitorChatVisibility();
   }
-});
-
-observer.observe(document.body, { childList: true, subtree: true });
+}, 500);
