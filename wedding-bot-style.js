@@ -40,7 +40,7 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Add avatar image
+// Add the avatar
 const avatar = document.createElement('img');
 avatar.id = 'ambassador-avatar';
 avatar.src = 'https://storage.googleapis.com/msgsndr/hT6XhVZ1tpQztNIrhXD4/media/67fd90ac0fa4ee04ace65053.png';
@@ -55,11 +55,18 @@ Object.assign(avatar.style, {
 });
 document.body.appendChild(avatar);
 
-// Repeating visibility checker loop
+// Function to check if element is on screen
+function isVisible(el) {
+  if (!el) return false;
+  const rect = el.getBoundingClientRect();
+  return rect.width > 0 && rect.height > 0 && rect.top >= 0 && rect.bottom <= window.innerHeight;
+}
+
+// Run every 500ms
 const visibilityLoop = setInterval(() => {
   const chatWindow = document.querySelector('.sc-chat-window');
   if (chatWindow) {
-    const isVisible = window.getComputedStyle(chatWindow).display !== 'none';
-    avatar.style.display = isVisible ? 'block' : 'none';
+    const visible = isVisible(chatWindow);
+    avatar.style.display = visible ? 'block' : 'none';
   }
 }, 500);
