@@ -1,0 +1,162 @@
+/* PPMS AI - Proprietary Chatbot Enhancement Suite v1.3.2 */
+(function() {
+  try {
+    // Create style element for chat styling
+    const style = document.createElement('style');
+    style.textContent = `
+      .sc-chat-window {border-radius:15px!important;overflow:hidden!important;box-shadow:0 5px 15px rgba(0,0,0,.1)!important;z-index:999!important}
+      .sc-header {background-color:#f5b8b1!important;padding:15px!important}
+      .sc-message--content.received {background:transparent!important;box-shadow:none!important;border:none!important}
+      .sc-message--content.received .sc-message--text {background:white!important;border-radius:15px!important;padding:15px!important;box-shadow:0 2px 5px rgba(0,0,0,.05)!important;margin:0!important}
+      .sc-message--content.sent {background:transparent!important;border:none!important;box-shadow:none!important}
+      .sc-message--content.sent .sc-message--text {background-color:#e97f7f!important;color:white!important;border-radius:15px!important;padding:12px 18px!important;margin:0!important}
+      .sc-message-list {background-image:url('https://storage.googleapis.com/msgsndr/hT6XhVZ1tpQztNIrhXD4/media/67fd902c266b6fb8779418dc.png')!important;background-size:cover!important;background-position:center center!important;padding:15px!important}
+      .sc-user-input {border-top:1px solid #eee!important;background:white!important}
+      .sc-message--avatar {margin-right:8px!important}
+    `;
+    document.head.appendChild(style);
+    
+    // Create and add avatar
+    function setupAvatar() {
+      // Check if avatar already exists
+      let avatar = document.getElementById('_wa_img');
+      
+      // If not, create it
+      if (!avatar) {
+        avatar = document.createElement('img');
+        avatar.id = '_wa_img';
+        avatar.src = 'https://storage.googleapis.com/msgsndr/hT6XhVZ1tpQztNIrhXD4/media/67fd90ac0fa4ee04ace65053.png';
+        avatar.alt = 'Assistant';
+        avatar.style.position = 'fixed';
+        avatar.style.bottom = '120px';
+        avatar.style.right = '420px';
+        avatar.style.width = '200px';
+        avatar.style.zIndex = '998';
+        avatar.style.pointerEvents = 'none';
+        avatar.style.display = 'none';
+        avatar.style.transition = 'opacity 0.3s ease';
+        document.body.appendChild(avatar);
+      }
+      
+      return avatar;
+    }
+    
+    // Wait for DOM to be ready
+    function initialize() {
+      const avatar = setupAvatar();
+      let chatOpen = false;
+      let launcherFound = false;
+      
+      // Try different methods to find chat elements
+      function findChatElements() {
+        const selectors = [
+          '.sc-chat-window',                // Standard selector
+          '.promptherai-widget',            // PrompterAI specific
+          '[class*="chat-window"]',         // Partial class match
+          'iframe[src*="promptherai"]',     // Iframe approach
+          '[class*="chat"][class*="window"]' // Generic approach
+        ];
+        
+        for (const selector of selectors) {
+          const element = document.querySelector(selector);
+          if (element) return element;
+        }
+        
+        return null;
+      }
+      
+      // Check if chat is open
+      function checkChatOpen() {
+        try {
+          const chatWindow = findChatElements();
+          
+          if (!chatWindow) return false;
+          
+          return window.getComputedStyle(chatWindow).display !== 'none' && 
+                 window.getComputedStyle(chatWindow).visibility !== 'hidden' && 
+                 chatWindow.offsetHeight > 0;
+        } catch (e) {
+          return false;
+        }
+      }
+      
+      // Update avatar visibility
+      function updateAvatar() {
+        try {
+          const isOpen = checkChatOpen();
+          
+          if (isOpen !== chatOpen) {
+            chatOpen = isOpen;
+            avatar.style.display = isOpen ? 'block' : 'none';
+          }
+        } catch (e) {
+          // Silent fail
+        }
+      }
+      
+      // Find and setup launcher listener
+      function setupLauncherListener() {
+        if (launcherFound) return;
+        
+        const launcherSelectors = [
+          '.sc-launcher',
+          '.promptherai-launcher',
+          '[class*="launcher"]',
+          'button[class*="chat"]',
+          '[role="button"][class*="chat"]'
+        ];
+        
+        for (const selector of launcherSelectors) {
+          const launcher = document.querySelector(selector);
+          
+          if (launcher) {
+            launcher.addEventListener('click', function() {
+              setTimeout(updateAvatar, 500);
+              setTimeout(updateAvatar, 1000);
+              setTimeout(updateAvatar, 1500);
+            });
+            
+            launcherFound = true;
+            break;
+          }
+        }
+      }
+      
+      // Initial setup
+      setupLauncherListener();
+      updateAvatar();
+      
+      // Set up periodic checks
+      const checkInterval = setInterval(function() {
+        updateAvatar();
+        
+        if (!launcherFound) {
+          setupLauncherListener();
+        }
+      }, 1000);
+      
+      // Add click listener to body (fallback)
+      document.body.addEventListener('click', function() {
+        setTimeout(updateAvatar, 700);
+      });
+      
+      // Clean up on page unload
+      window.addEventListener('beforeunload', function() {
+        clearInterval(checkInterval);
+      });
+    }
+    
+    // Start initialization based on document readiness
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initialize);
+    } else {
+      initialize();
+    }
+    
+    // Fallback initialization after a delay
+    setTimeout(initialize, 1500);
+    
+  } catch (e) {
+    console.log('PPMS AI Enhancement error:', e.message);
+  }
+})();
