@@ -55,22 +55,35 @@ Object.assign(avatar.style, {
 });
 document.body.appendChild(avatar);
 
-// Watch for style changes (i.e., when chat is opened/closed)
-const waitForChat = setInterval(() => {
-  const chatWindow = document.querySelector('.sc-chat-window');
-  if (chatWindow) {
-    clearInterval(waitForChat);
+// Wait for full chat wrapper to appear
+const initObserver = setInterval(() => {
+  const wrapper = document.querySelector('[id^="chat_plugin_ghl"]'); // the outer chat div Aminos injects
 
+  if (wrapper) {
+    clearInterval(initObserver);
+
+    // Function to check if chat is visible
+    const isChatOpen = () => {
+      const chatWindow = wrapper.querySelector('.sc-chat-window');
+      if (!chatWindow) return false;
+
+      const computedStyle = window.getComputedStyle(chatWindow);
+      return computedStyle.display !== 'none' && computedStyle.opacity !== '0' && computedStyle.visibility !== 'hidden';
+    };
+
+    // Setup observer on class/style changes
     const observer = new MutationObserver(() => {
-      const isVisible = window.getComputedStyle(chatWindow).display !== 'none';
-      avatar.style.display = isVisible ? 'block' : 'none';
+      avatar.style.display = isChatOpen() ? 'block' : 'none';
     });
 
-    // Watch style changes only
-    observer.observe(chatWindow, { attributes: true, attributeFilter: ['style'] });
+    observer.observe(wrapper, {
+      attributes: true,
+      childList: true,
+      subtree: true,
+      attributeFilter: ['class', 'style']
+    });
 
-    // Do initial check too
-    const initialVisible = window.getComputedStyle(chatWindow).display !== 'none';
-    avatar.style.display = initialVisible ? 'block' : 'none';
+    // Run check once on load
+    avatar.style.display = isChatOpen() ? 'block' : 'none';
   }
-}, 500);
+}, 400);
