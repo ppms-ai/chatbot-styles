@@ -1,4 +1,4 @@
-// Inject custom styles
+// Inject styles
 const style = document.createElement('style');
 style.textContent = `
   .sc-chat-window {
@@ -40,7 +40,7 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Add avatar
+// Add the avatar
 const avatar = document.createElement('img');
 avatar.id = 'ambassador-avatar';
 avatar.src = 'https://storage.googleapis.com/msgsndr/hT6XhVZ1tpQztNIrhXD4/media/67fd90ac0fa4ee04ace65053.png';
@@ -55,35 +55,23 @@ Object.assign(avatar.style, {
 });
 document.body.appendChild(avatar);
 
-// Wait for full chat wrapper to appear
-const initObserver = setInterval(() => {
-  const wrapper = document.querySelector('[id^="chat_plugin_ghl"]'); // the outer chat div Aminos injects
+// Detect the chat toggle button and toggle avatar manually
+const checkForButton = setInterval(() => {
+  const btn = document.querySelector('[id^="chat_plugin_ghl"] button');
+  const chatWindow = document.querySelector('.sc-chat-window');
 
-  if (wrapper) {
-    clearInterval(initObserver);
+  if (btn && chatWindow) {
+    clearInterval(checkForButton);
 
-    // Function to check if chat is visible
-    const isChatOpen = () => {
-      const chatWindow = wrapper.querySelector('.sc-chat-window');
-      if (!chatWindow) return false;
+    let chatOpen = false;
 
-      const computedStyle = window.getComputedStyle(chatWindow);
-      return computedStyle.display !== 'none' && computedStyle.opacity !== '0' && computedStyle.visibility !== 'hidden';
-    };
-
-    // Setup observer on class/style changes
-    const observer = new MutationObserver(() => {
-      avatar.style.display = isChatOpen() ? 'block' : 'none';
+    btn.addEventListener('click', () => {
+      // Small delay to let animation happen
+      setTimeout(() => {
+        const isVisible = window.getComputedStyle(chatWindow).display !== 'none';
+        chatOpen = isVisible;
+        avatar.style.display = chatOpen ? 'block' : 'none';
+      }, 100);
     });
-
-    observer.observe(wrapper, {
-      attributes: true,
-      childList: true,
-      subtree: true,
-      attributeFilter: ['class', 'style']
-    });
-
-    // Run check once on load
-    avatar.style.display = isChatOpen() ? 'block' : 'none';
   }
-}, 400);
+}, 500);
