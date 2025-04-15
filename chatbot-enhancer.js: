@@ -1,6 +1,21 @@
-/* PPMS AI - Proprietary Chatbot Enhancement Suite v1.3.2 */
+/* PPMS AI - Proprietary Chatbot Enhancement Suite v1.3.3 */
 (function() {
   try {
+    // Find bot ID from script tag attribute or use default
+    const scriptTag = document.currentScript;
+    const botId = scriptTag ? scriptTag.getAttribute('data-bot-id') : null;
+    
+    if (!botId) {
+      console.error('PPMS AI: Missing bot ID. Add data-bot-id attribute to script tag.');
+      return;
+    }
+    
+    // Add the bot script
+    const botScript = document.createElement('script');
+    botScript.src = `https://app.promptherai.io/js/chat_plugin_ghl.js`;
+    botScript.setAttribute('data-bot-id', botId);
+    document.head.appendChild(botScript);
+    
     // Create style element for chat styling
     const style = document.createElement('style');
     style.textContent = `
@@ -16,6 +31,7 @@
     `;
     document.head.appendChild(style);
     
+    // Rest of the code remains the same...
     // Create and add avatar
     function setupAvatar() {
       // Check if avatar already exists
