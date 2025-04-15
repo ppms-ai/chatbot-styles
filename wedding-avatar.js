@@ -1,7 +1,7 @@
 (function() {
-  // Function to add avatar and set up listeners
-  function setup() {
-    // Add the avatar to the page (initially hidden)
+  // Wait a moment after page load to avoid immediate appearance
+  setTimeout(function() {
+    // Add the avatar (initially hidden)
     var avatar = document.createElement('img');
     avatar.id = 'wedding-ambassador-avatar';
     avatar.src = 'https://storage.googleapis.com/msgsndr/hT6XhVZ1tpQztNIrhXD4/media/67fd90ac0fa4ee04ace65053.png';
@@ -12,49 +12,27 @@
     avatar.style.width = '200px';
     avatar.style.zIndex = '998';
     avatar.style.pointerEvents = 'none';
-    avatar.style.display = 'none'; // Initially hidden
+    avatar.style.display = 'none';
     document.body.appendChild(avatar);
     
-    // Find the launcher button
-    function findLauncherAndSetup() {
+    // Set up direct click handler for launcher
+    document.addEventListener('click', function(event) {
+      // Find chat elements
       var launcher = document.querySelector('.sc-launcher');
+      var chatWindow = document.querySelector('.sc-chat-window');
       
-      if (launcher) {
-        // Set up click listener on the launcher button
-        launcher.addEventListener('click', function() {
-          // First click: should open the chat and show avatar
-          // Second click: should close the chat and hide avatar
-          setTimeout(function() {
-            var chatWindow = document.querySelector('.sc-chat-window');
-            if (chatWindow && window.getComputedStyle(chatWindow).display !== 'none') {
-              avatar.style.display = 'block'; // Show avatar when chat is open
-            } else {
-              avatar.style.display = 'none'; // Hide avatar when chat is closed
-            }
-          }, 500);
-        });
-        
-        return true;
+      // If launcher was clicked
+      if (launcher && (event.target === launcher || launcher.contains(event.target))) {
+        // Wait for animation
+        setTimeout(function() {
+          // Show avatar only when chat is visible
+          if (chatWindow && window.getComputedStyle(chatWindow).display !== 'none') {
+            avatar.style.display = 'block';
+          } else {
+            avatar.style.display = 'none';
+          }
+        }, 500);
       }
-      
-      return false;
-    }
-    
-    // Try to find launcher immediately
-    if (!findLauncherAndSetup()) {
-      // If not found, check periodically
-      var checkInterval = setInterval(function() {
-        if (findLauncherAndSetup()) {
-          clearInterval(checkInterval);
-        }
-      }, 500);
-    }
-  }
-  
-  // Run setup when DOM is loaded
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', setup);
-  } else {
-    setup();
-  }
+    });
+  }, 3000); // Wait 3 seconds before setting up anything
 })();
